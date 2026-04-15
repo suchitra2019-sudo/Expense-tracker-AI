@@ -1,6 +1,5 @@
 import sqlite3
 from datetime import date
-from twilio.twiml.messaging_response import MessagingResponse
 
 # DB
 conn = sqlite3.connect("expenses.db", check_same_thread=False)
