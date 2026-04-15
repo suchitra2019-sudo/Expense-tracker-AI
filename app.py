@@ -1,4 +1,3 @@
-from flask import Flask, request
 import sqlite3
 from datetime import date
 from twilio.twiml.messaging_response import MessagingResponse
