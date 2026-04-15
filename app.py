@@ -3,12 +3,19 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 
-
-# DB
+# ---------------- DB ----------------
 conn = sqlite3.connect("expenses.db", check_same_thread=False)
 c = conn.cursor()
 
-# Categorization
+c.execute('''CREATE TABLE IF NOT EXISTS expenses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT,
+    category TEXT,
+    amount REAL,
+    description TEXT
+)''')
+
+# ---------------- CATEGORY ----------------
 def categorize(text):
     text = text.lower()
     if "lunch" in text or "dinner" in text:
@@ -20,24 +27,42 @@ def categorize(text):
     else:
         return "Other"
 
+# ---------------- UI ----------------
+st.set_page_config(page_title="Expense Tracker", layout="wide")
+st.title("💰 Expense Tracker")
 
-    
+menu = st.sidebar.selectbox("Menu", ["Add Expense", "Dashboard"])
 
-    resp = MessagingResponse()
+# ---------------- ADD ----------------
+if menu == "Add Expense":
+    st.subheader("➕ Add Expense")
 
-    if amount:
-        amt = amount[0]
-        category = categorize(msg)
+    expense_date = st.date_input("Date", date.today())
+    amount = st.number_input("Amount", min_value=0.0)
+    description = st.text_input("Description")
+
+    if st.button("Add"):
+        category = categorize(description) if description else "Other"
 
         c.execute("INSERT INTO expenses (date, category, amount, description) VALUES (?, ?, ?, ?)",
-                  (str(date.today()), category, amt, msg))
+                  (str(expense_date), category, amount, description))
         conn.commit()
 
-        resp.message(f"✅ Added ₹{amt} under {category}")
+        st.success(f"Added ₹{amount} under {category}")
+
+# ---------------- DASHBOARD ----------------
+else:
+    st.subheader("📊 Dashboard")
+
+    df = pd.read_sql_query("SELECT * FROM expenses", conn)
+
+    if df.empty:
+        st.warning("No data yet")
     else:
-        resp.message("❌ Please send like: 'Spent 200 on food'")
+        df['date'] = pd.to_datetime(df['date'])
 
-    return str(resp)
+        st.metric("Total Spend", f"₹{df['amount'].sum()}")
 
+        st.bar_chart(df.groupby('category')['amount'].sum())
 
-    
+        st.dataframe(df)
