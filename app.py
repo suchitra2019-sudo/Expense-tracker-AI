@@ -2,8 +2,6 @@ import sqlite3
 from datetime import date
 from twilio.twiml.messaging_response import MessagingResponse
 
-app = Flask(__name__)
-
 # DB
 conn = sqlite3.connect("expenses.db", check_same_thread=False)
 c = conn.cursor()
@@ -20,7 +18,7 @@ def categorize(text):
     else:
         return "Other"
 
-@app.route("/whatsapp", methods=["POST"])
+
 def whatsapp_bot():
     msg = request.form.get("Body")
     amount = [int(s) for s in msg.split() if s.isdigit()]
