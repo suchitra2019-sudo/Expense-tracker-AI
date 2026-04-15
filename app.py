@@ -18,9 +18,7 @@ def categorize(text):
         return "Other"
 
 
-def whatsapp_bot():
-    msg = request.form.get("Body")
-    amount = [int(s) for s in msg.split() if s.isdigit()]
+    
 
     resp = MessagingResponse()
 
@@ -38,5 +36,5 @@ def whatsapp_bot():
 
     return str(resp)
 
-if __name__ == "__main__":
-    app.run(port=5000)
+
+    
